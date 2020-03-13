@@ -1,0 +1,118 @@
+version: "3.2"
+services:
+  redis:
+    image: redis:latest
+    container_name: libook-onpremise-redis
+    volumes:
+      ## 挂载数据文件，避免image被销毁的同时数据也被销毁
+      - type: bind
+        source: "${PWD}/redis/data"
+        target: "/data"
+      ## 挂载redis配置文件
+      - type: bind
+        source: "${PWD}/redis/conf/redis.conf"
+        target: "/etc/redis/conf/redis.conf"
+    command: ["redis-server", "/etc/redis/conf/redis.conf"]
+    ports:
+      - 6379:6379
+    restart: always
+    tty: true
+    networks:
+      - libook
+  mysql:
+    build:
+      context: ./docker/mysql
+    container_name: libook-onpremise-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      ## 挂载数据文件，避免image被销毁的同时数据也被销毁
+      - type: bind
+        source: "${PWD}/mysql/data"
+        target: "/var/lib/mysql"
+      ## 挂载mysql配置文件
+      - type: bind
+        source: "${PWD}/mysql/conf.d"
+        target: "/etc/mysql/conf.d"
+      ## 挂载mysql初始化sql
+      - type: bind
+        source: "${PWD}/mysql/docker-entrypoint-initdb.d"
+        target: "/docker-entrypoint-initdb.d"
+    ports:
+      - "3306:3306"
+    restart: always
+    tty: true
+    networks:
+      - libook
+  libook-backend:
+    build:
+      context: .
+    depends_on:
+      - redis
+      - mysql
+    container_name: libook-onpremise-backend
+    environment:
+      MYSQL_HOST: "mysql"
+      MYSQL_PORT: "3306"
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      REDIS_HOST: "redis"
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      PUBLIC_PATH: "//cdn.libook.fun/libook-static"
+      PUBLIC_BACKEND_PATH: "//cdn.libook.fun/backend"
+    volumes:
+      ## 挂载上传的资源
+      - type: bind
+        source: "${PWD}/nginx/html/cdn/backend/public"
+        target: "/libook-backend/app/public"
+      ## 挂载日志
+      - type: bind
+        source: "${PWD}/libook-backend/logs"
+        target: "/root/logs"
+      ## 挂载app/view/cms给单页应用
+      - type: bind
+        source: "${PWD}/nginx/www/cdn/cdn.libook.fun/public/libook-admin-static/cms"
+        target: "/libook-backend/app/view/cms"
+    ports:
+      - "7001:7001"
+    command: ["npm", "run", "start-docker"]
+    restart: always
+    tty: true
+    networks:
+      - libook
+  nginx:
+    build:
+      context: ./nginx
+    container_name: libook-onpremise-nginx
+    volumes:
+      ## 挂载ng配置文件，方便动态修改
+      - type: bind
+        source: ${PWD}/nginx/conf
+        target: /etc/nginx
+      ## 挂载日志
+      - type: bind
+        source: ${PWD}/nginx/log
+        target: /var/log/nginx
+      ## 挂载静态html目录
+      - type: bind
+        source: ${PWD}/nginx/html
+        target: /usr/share/nginx/html
+      ## 挂载静态www目录
+      - type: bind
+        source: ${PWD}/nginx/www
+        target: /var/www
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
+    tty: true
+    networks:
+      - libook
+networks:
+  libook:
+    driver: bridge
