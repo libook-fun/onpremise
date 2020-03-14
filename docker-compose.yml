@@ -75,7 +75,7 @@ services:
         target: "/root/logs"
       ## 挂载app/view/cms给单页应用
       - type: bind
-        source: "${PWD}/nginx/www/cdn/cdn.libook.fun/public/libook-admin-static/cms"
+        source: "${PWD}/nginx/www/cdn.libook.fun/public/libook-admin-static/cms"
         target: "/libook-backend/app/view/cms"
     ports:
       - "7001:7001"
