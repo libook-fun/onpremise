@@ -48,8 +48,7 @@ services:
     networks:
       - libook
   libook-backend:
-    build:
-      context: .
+    image: libook-backend_libook-backend:latest
     depends_on:
       - redis
       - mysql
