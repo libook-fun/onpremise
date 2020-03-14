@@ -21,7 +21,7 @@ services:
       - libook
   mysql:
     build:
-      context: ./docker/mysql
+      context: ./mysql
     container_name: libook-onpremise-mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
