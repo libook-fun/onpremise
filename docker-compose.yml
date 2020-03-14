@@ -64,7 +64,7 @@ services:
     volumes:
       ## 挂载上传的资源
       - type: bind
-        source: "${PWD}/nginx/html/cdn/backend/public"
+        source: "${PWD}/nginx/www/cdn.libook.fun/public/backend"
         target: "/libook-backend/app/public"
       ## 挂载日志
       - type: bind
