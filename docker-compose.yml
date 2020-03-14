@@ -49,9 +49,6 @@ services:
       - libook
   libook-backend:
     image: libook-backend_libook-backend:latest
-    depends_on:
-      - redis
-      - mysql
     container_name: libook-onpremise-backend
     environment:
       MYSQL_HOST: "mysql"
