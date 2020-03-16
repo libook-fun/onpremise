@@ -47,8 +47,18 @@ services:
     tty: true
     networks:
       - libook
+  libook-go:
+    image: libook-go:latest
+    container_name: libook-onpremise-go
+    ports:
+      - "7777:7777"
+    command: ["./libook-go"]
+    restart: always
+    tty: true
+    networks:
+      - libook
   libook-backend:
-    image: libook-backend_libook-backend:latest
+    image: libook-backend:latest
     container_name: libook-onpremise-backend
     environment:
       MYSQL_HOST: "mysql"
@@ -61,6 +71,7 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       PUBLIC_PATH: "//cdn.libook.fun/libook-static"
       PUBLIC_BACKEND_PATH: "//cdn.libook.fun/backend"
+      LIBOOK_GO_PATH: "http://libook-go:7777"
     volumes:
       ## 挂载上传的资源
       - type: bind
