@@ -113,6 +113,10 @@ services:
       - type: bind
         source: ${PWD}/nginx/www
         target: /var/www
+      ## 挂载letsencrypt目录
+      - type: bind
+        source: /etc/letsencrypt
+        target: /etc/letsencrypt
     ports:
       - "80:80"
       - "443:443"
