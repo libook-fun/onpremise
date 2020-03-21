@@ -115,7 +115,7 @@ services:
         target: /var/www
       ## 挂载letsencrypt目录
       - type: bind
-        source: /etc/letsencrypt
+        source: /etc/nginx/letsencrypt
         target: /etc/letsencrypt
     ports:
       - "80:80"
