@@ -105,18 +105,18 @@ services:
       - type: bind
         source: ${PWD}/nginx/log
         target: /var/log/nginx
-      ## 挂载静态html目录
+      ## 挂载公共静态目录
       - type: bind
         source: ${PWD}/nginx/html
         target: /usr/share/nginx/html
-      ## 挂载静态www目录
+      ## 挂载vhost静态目录
       - type: bind
         source: ${PWD}/nginx/www
         target: /var/www
       ## 挂载letsencrypt目录
       - type: bind
-        source: /etc/nginx/letsencrypt
-        target: /etc/letsencrypt
+        source: /etc/letsencrypt
+        target: /etc/nginx/letsencrypt
     ports:
       - "80:80"
       - "443:443"
